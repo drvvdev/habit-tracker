@@ -56,9 +56,58 @@ public class HabitControllerTest {
             ResponseStatusException.class,
             () -> habitController.getHabitById(999L));
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+}
+@Test
+public void shouldReturn404WhenDeletingMissingHabit() {
+HabitController habitController = new HabitController();
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+            () -> habitController.deleteHabit(999L));
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+}
+@Test
+public void shouldReturn404WhenUpdatingMissingHabit() {
+    HabitController habitController = new HabitController();
+    Habit habit = new Habit();
+    habit.setName("Spring");
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+            () -> habitController.updateHabit(999L, habit));
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+}
+@Test
+    public void shouldAssignDifferentIds() {
+    HabitController habitController = new HabitController();
+    Habit habit = new Habit();
+    habit.setName("Java");
+    habitController.createHabit(habit);
+    Habit habit1 = new Habit();
+    habit1.setName("Gym");
+    habitController.createHabit(habit1);
+    assertEquals(1L, habit.getId());
+    assertEquals(2L, habit1.getId());
+    assertEquals(2, habitController.getHabits().size());
+}
+@Test
+public void shouldNotReuseDeletedId() {
+    HabitController habitController = new HabitController();
+    Habit habit = new Habit();
+    habit.setName("Java");
+    habitController.createHabit(habit);
+    Habit habit1 = new Habit();
+    habit1.setName("Gym");
+    habitController.createHabit(habit1);
+    habitController.deleteHabit(habit1.getId());
+    Habit habit2 = new Habit();
+    habit2.setName("Jerk");
+    habitController.createHabit(habit2);
+    assertEquals(1L, habit.getId());
+    assertEquals(3L, habit2.getId());
+    assertEquals(2, habitController.getHabits().size());
+
+
 
 
 }
+
 
 }
 
