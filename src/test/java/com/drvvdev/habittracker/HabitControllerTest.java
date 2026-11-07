@@ -2,6 +2,7 @@ package com.drvvdev.habittracker;
 
 import com.drvvdev.habittracker.controller.HabitController;
 import com.drvvdev.habittracker.entity.Habit;
+import com.drvvdev.habittracker.service.HabitService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class HabitControllerTest {
     @Test
     public void shouldCreateHabit() {
-        HabitController habitController = new HabitController();
+        HabitController habitController = new HabitController(new HabitService());
         Habit habit = new Habit();
         habit.setName("Learn Java");
         Habit createdHabit = habitController.createHabit(habit);
@@ -21,7 +22,7 @@ public class HabitControllerTest {
     }
     @Test
     public void shouldGetHabitById() {
-        HabitController habitController = new HabitController();
+         HabitController habitController = new HabitController(new HabitService());
         Habit habit = new Habit();
         habit.setName("Gym");
         habitController.createHabit(habit);
@@ -30,7 +31,7 @@ public class HabitControllerTest {
     }
     @Test
     public void shouldDeleteHabit() {
-        HabitController habitController = new HabitController();
+         HabitController habitController = new HabitController(new HabitService());
         Habit habit = new Habit();
         habit.setName("Gym");
         habitController.createHabit(habit);
@@ -39,7 +40,7 @@ public class HabitControllerTest {
     }
     @Test
     public void shouldUpdateHabit() {
-        HabitController habitController = new HabitController();
+         HabitController habitController = new HabitController(new HabitService());
         Habit habit = new Habit();
         habit.setName("Java");
         habitController.createHabit(habit);
@@ -51,7 +52,7 @@ public class HabitControllerTest {
     }
 @Test
     public void shouldReturn404WhenHabitNotFound() {
-    HabitController habitController = new HabitController();
+     HabitController habitController = new HabitController(new HabitService());
     ResponseStatusException exception = assertThrows(
             ResponseStatusException.class,
             () -> habitController.getHabitById(999L));
@@ -59,14 +60,14 @@ public class HabitControllerTest {
 }
 @Test
 public void shouldReturn404WhenDeletingMissingHabit() {
-HabitController habitController = new HabitController();
+ HabitController habitController = new HabitController(new HabitService());
     ResponseStatusException exception = assertThrows(ResponseStatusException.class,
             () -> habitController.deleteHabit(999L));
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
 }
 @Test
 public void shouldReturn404WhenUpdatingMissingHabit() {
-    HabitController habitController = new HabitController();
+     HabitController habitController = new HabitController(new HabitService());
     Habit habit = new Habit();
     habit.setName("Spring");
     ResponseStatusException exception = assertThrows(ResponseStatusException.class,
@@ -75,7 +76,7 @@ public void shouldReturn404WhenUpdatingMissingHabit() {
 }
 @Test
     public void shouldAssignDifferentIds() {
-    HabitController habitController = new HabitController();
+     HabitController habitController = new HabitController(new HabitService());
     Habit habit = new Habit();
     habit.setName("Java");
     habitController.createHabit(habit);
@@ -88,7 +89,7 @@ public void shouldReturn404WhenUpdatingMissingHabit() {
 }
 @Test
 public void shouldNotReuseDeletedId() {
-    HabitController habitController = new HabitController();
+     HabitController habitController = new HabitController(new HabitService());
     Habit habit = new Habit();
     habit.setName("Java");
     habitController.createHabit(habit);
