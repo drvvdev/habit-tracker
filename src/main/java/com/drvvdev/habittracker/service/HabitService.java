@@ -1,11 +1,14 @@
 package com.drvvdev.habittracker.service;
 
+import com.drvvdev.habittracker.dto.HabitRequest;
+import com.drvvdev.habittracker.dto.HabitResponse;
 import com.drvvdev.habittracker.entity.Habit;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,22 +20,31 @@ public class HabitService {
     private Map<Long, Habit> habits = new HashMap<>();
     private Long nextId = 1L;
 
-    public List<Habit> getHabits() {
-        return new ArrayList<>(habits.values());
+    public List<HabitResponse> getHabits() {
+        ArrayList <HabitResponse> responses = new ArrayList<>();
+        for (Habit habit: habits.values()) {
+            responses.add(toResponse(habit));
+        }
+        return responses;
     }
 
 
-    public Habit createHabit(Habit habit) {
-        habit.setId(nextId++);
-        habits.put(habit.getId(), habit);
-        return habit;
+    public HabitResponse createHabit(HabitRequest habit) {
+        Habit newhabit = new Habit();
+        newhabit.setName(habit.getName());
+        newhabit.setDescription(habit.getDescription());
+        newhabit.setTarget(habit.getTarget());
+        newhabit.setId(nextId++);
+        newhabit.setCreatedAt(LocalDateTime.now());
+        habits.put(newhabit.getId(), newhabit);
+        return toResponse(newhabit);
     }
 
-    public Habit getHabitById(Long id) {
+    public HabitResponse getHabitById(Long id) {
         if (!habits.containsKey(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return habits.get(id);
+        return toResponse(habits.get(id));
     }
 
     public void deleteHabit(Long id) {
@@ -42,15 +54,25 @@ public class HabitService {
         habits.remove(id);
     }
 
-    public Habit updateHabit(Long id, Habit habit) {
+    public HabitResponse updateHabit(Long id, HabitRequest habit) {
         if (!habits.containsKey(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         Habit existingHabit = habits.get(id);
         existingHabit.setName(habit.getName());
-
         existingHabit.setDescription(habit.getDescription());
-        return existingHabit;
+        existingHabit.setTarget(habit.getTarget());
+        return toResponse(existingHabit);
+    }
+    private HabitResponse toResponse(Habit habit) {
+        HabitResponse habitResponse = new HabitResponse();
+        habitResponse.setDescription(habit.getDescription());
+        habitResponse.setTarget(habit.getTarget());
+        habitResponse.setId(habit.getId());
+        habitResponse.setName(habit.getName());
+        habitResponse.setCreatedAt(habit.getCreatedAt());
+        return habitResponse;
+
     }
 }
 

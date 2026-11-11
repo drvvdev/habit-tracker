@@ -1,15 +1,13 @@
 package com.drvvdev.habittracker.controller;
 
-import com.drvvdev.habittracker.entity.Habit;
+import com.drvvdev.habittracker.dto.HabitRequest;
+import com.drvvdev.habittracker.dto.HabitResponse;
 import com.drvvdev.habittracker.service.HabitService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping ("/api/habits")
@@ -22,24 +20,26 @@ private final HabitService habitService;
 
 
     @GetMapping
-    public List<Habit> getHabits() {
+    public List<HabitResponse> getHabits() {
        return habitService.getHabits();
     }
     @PostMapping
-    public Habit createHabit(@RequestBody Habit habit) {
+    @ResponseStatus (HttpStatus.CREATED)
+    public HabitResponse createHabit( @Valid @RequestBody HabitRequest habit) {
         return habitService.createHabit(habit);
     }
     @GetMapping("/{id}")
-    public Habit getHabitById(@PathVariable Long id) {
+    public HabitResponse getHabitById(@PathVariable Long id) {
 
         return habitService.getHabitById(id);
     }
     @DeleteMapping("/{id}")
+    @ResponseStatus (HttpStatus.NO_CONTENT)
     public void deleteHabit(@PathVariable Long id) {
         habitService.deleteHabit(id);
         }
     @PutMapping("/{id}")
-    public Habit updateHabit(@PathVariable Long id, @RequestBody Habit habit) {
+    public HabitResponse updateHabit(@PathVariable Long id,@Valid @RequestBody HabitRequest habit) {
        return habitService.updateHabit(id, habit);
 
 
