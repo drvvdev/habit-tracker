@@ -1,3 +1,11 @@
+
 spring:
   application:
     name: habit-tracker
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO

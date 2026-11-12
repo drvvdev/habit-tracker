@@ -1,5 +1,6 @@
 package com.drvvdev.habittracker.service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.drvvdev.habittracker.dto.HabitRequest;
 import com.drvvdev.habittracker.dto.HabitResponse;
 import com.drvvdev.habittracker.entity.Habit;
@@ -17,8 +18,11 @@ import java.util.Map;
 @Service
 
 public class HabitService {
+    private static final Logger log = LoggerFactory.getLogger(HabitService.class);
     private Map<Long, Habit> habits = new HashMap<>();
     private Long nextId = 1L;
+
+
 
     public List<HabitResponse> getHabits() {
         ArrayList <HabitResponse> responses = new ArrayList<>();
@@ -37,6 +41,7 @@ public class HabitService {
         newhabit.setId(nextId++);
         newhabit.setCreatedAt(LocalDateTime.now());
         habits.put(newhabit.getId(), newhabit);
+        log.info("создана привычка с айди {}", newhabit.getId());
         return toResponse(newhabit);
     }
 
@@ -52,6 +57,7 @@ public class HabitService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         habits.remove(id);
+        log.info("привычка удалена с айди {}", id);
     }
 
     public HabitResponse updateHabit(Long id, HabitRequest habit) {
@@ -62,6 +68,7 @@ public class HabitService {
         existingHabit.setName(habit.getName());
         existingHabit.setDescription(habit.getDescription());
         existingHabit.setTarget(habit.getTarget());
+        log.info("привычка обновлена с айди {}",id);
         return toResponse(existingHabit);
     }
     private HabitResponse toResponse(Habit habit) {
