@@ -11,12 +11,67 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
+import com.drvvdev.habittracker.repository.HabitRepository;
+import com.drvvdev.habittracker.entity.Habit;
+
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class HabitControllerTest {
+private HabitController habitController;
+@BeforeEach
+void setUp() {
+    ArrayList<Habit> habits = new ArrayList<>();
+    HabitRepository habitRepository = Mockito.mock(HabitRepository.class);
+    AtomicLong atomicLong = new AtomicLong(0);
+    Mockito.when(habitRepository.save(Mockito.any(Habit.class))).thenAnswer( invocation -> {
+        Habit savedHabit = invocation.getArgument(0);
+        if (savedHabit.getId() == null) {
 
+            savedHabit.setId(atomicLong.incrementAndGet());
+            habits.add(savedHabit);
+        }
+        return savedHabit; });
+    Mockito.when(habitRepository.findAll()).thenReturn(habits);
+    Mockito.when(habitRepository.findById(Mockito.anyLong())).thenAnswer(invocation -> {
+        Long requestedId = invocation.getArgument(0);
+        for (Habit habit : habits) {
+            if (habit.getId().equals(requestedId)) {
+               return Optional.of(habit);
+            }
+
+        }
+        return Optional.empty();
+    });
+    Mockito.when(habitRepository.existsById(Mockito.anyLong())).thenAnswer(invocationOnMock -> {
+      Long requestedId = invocationOnMock.getArgument(0);
+        for (Habit habit : habits) {
+            if (habit.getId().equals(requestedId)) {
+                return true;
+            }
+        }
+        return false;
+    });
+    Mockito.doAnswer(invocationOnMock -> {
+        Long requestedId = invocationOnMock.getArgument(0);
+        for (Habit habit : habits) {
+            if (habit.getId().equals(requestedId)) {
+                habits.remove(habit);
+                return null;
+                }
+
+            }
+        return null; })
+    .when(habitRepository).deleteById(Mockito.anyLong());
+    HabitService habitService = new HabitService(habitRepository);
+    habitController = new HabitController(habitService);
+}
     @Test
     public void shouldCreateHabit() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Learn Java");
@@ -29,7 +84,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldGetHabitById() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Gym");
@@ -42,7 +97,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldDeleteHabit() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Gym");
@@ -55,7 +110,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldUpdateHabit() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Java");
@@ -76,7 +131,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldReturn404WhenHabitNotFound() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
@@ -88,7 +143,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldReturn404WhenDeletingMissingHabit() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
@@ -100,7 +155,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldReturn404WhenUpdatingMissingHabit() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Spring");
@@ -115,7 +170,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldAssignDifferentIds() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Java");
@@ -132,7 +187,7 @@ public class HabitControllerTest {
 
     @Test
     public void shouldNotReuseDeletedId() {
-        HabitController habitController = new HabitController(new HabitService());
+
 
         HabitRequest habit = new HabitRequest();
         habit.setName("Java");
